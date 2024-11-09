@@ -1,29 +1,30 @@
+import time
 from generativepy.bitmap import Scaler  # type: ignore
 from generativepy.nparray import make_nparray  # type: ignore
 import numpy as np
 import imageio
-import time
+from generativepy.bitmap import Scaler
+import numpy as np
 from common import colorise
 
-MAX_COUNT = 512
-OUTPUT_FILE = "./images/julia_zoom.gif"
-
-FRAMES = 60  # Number of frames in the animation
-FPS = 20
+MAX_COUNT = 256
+OUTPUT_FILE = "./images/burning_ship_zoom.gif"
+FRAMES = 90  # Number of frames in the animation
+FPS = 15  # Number of frames in the animation
 PIXEL_WIDTH = 512  # Width of the image
 PIXEL_HEIGHT = 512  # Height of the image
 START_ZOOM = 1  # Initial zoom level
-END_ZOOM = 256  # Final zoom level after all frames
-CENTER_X, CENTER_Y = -0.5251993, -0.5251993
-
-# julia set constants
-# C_RE, C_IM = -0.7, 0.27015
-C_RE, C_IM = -0.5251993, -0.5251993
+END_ZOOM = 400  # Final zoom level after all frames
+CENTER_X, CENTER_Y = -1.762, -0.028  # Popular region for Burning Ship fractal
 
 
-def calc(x, y):
+def calc(c1, c2):
+    x = y = 0
     for i in range(MAX_COUNT):
-        x, y = x * x - y * y + C_RE, 2 * x * y + C_IM
+        x, y = abs(x), abs(y)
+        x_new = x * x - y * y + c1
+        y = 2 * x * y + c2
+        x = x_new
         if x * x + y * y > 4:
             return i + 1
     return 0
@@ -52,8 +53,8 @@ def paint(image, pixel_width, pixel_height, zoom, center_x, center_y):
 def animate(
     frames, pixel_width, pixel_height, start_zoom, end_zoom, center_x, center_y
 ):
-    times = [time.time() * 1000]
     images = []
+    times = [time.time() * 1000]
     for i in range(frames):
         print(f"Processing frame {i+1}/{frames}...", end=" ")
         zoom = start_zoom * (end_zoom / start_zoom) ** (i / (frames - 1))
